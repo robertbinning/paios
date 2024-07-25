@@ -35,7 +35,18 @@ def main():
     # Run the app
     import uvicorn
     try:
-        uvicorn.run("app:create_app", host="localhost", port=3080, factory=True, workers=1, reload=True, reload_dirs=[backend_dir], reload_excludes=[venv_dir])
+        uvicorn.run(
+            "app:create_app", 
+            host="localhost", 
+            port=3080, 
+            factory=True, 
+            workers=1, 
+            reload=True, 
+            reload_dirs=[backend_dir], 
+            reload_excludes=[venv_dir],
+            ssl_certfile="./localhost+2.pem",
+            ssl_keyfile="./localhost+2-key.pem"
+        )
     except KeyboardInterrupt:
         pass
     finally:

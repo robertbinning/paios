@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, LargeBinary
 from backend.db import Base
 
 class Config(Base):
@@ -17,6 +17,8 @@ class User(Base):
     id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
+    current_challenge = Column(String, nullable=True)
+    credential_id = Column(LargeBinary, nullable=True)  # Add this line
 
 class Asset(Base):
     __tablename__ = "asset"

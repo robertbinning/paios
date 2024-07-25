@@ -36,12 +36,32 @@ if __name__ == "__main__":
     from app import create_app
     app = create_app()
 
+    # Define the paths to the SSL certificate and key file
+    certfile_path = base_dir / "localhost+2.pem"
+    keyfile_path = base_dir / "localhost+2-key.pem"
+
+    # Ensure the SSL certificate and key file exist
+    if not certfile_path.is_file() or not keyfile_path.is_file():
+        raise FileNotFoundError("SSL certificate or key file not found.")
+
     # Run the app
     import uvicorn
     
     logger.info("Running the app with uvicorn.")
     try:
-        uvicorn.run("app:create_app", host="localhost", port=3080, factory=True, workers=1, reload=True, reload_dirs=[backend_dir], reload_excludes=[venv_dir], log_config=logging_config)
+        uvicorn.run(
+            "app:create_app",
+            host="localhost",
+            port=3080,
+            factory=True,
+            workers=1,
+            reload=True,
+            reload_dirs=[backend_dir],
+            reload_excludes=[venv_dir],
+            log_config=logging_config,
+            ssl_certfile=str(certfile_path),
+            ssl_keyfile=str(keyfile_path)
+        )
     except KeyboardInterrupt:
         #handle_keyboard_interrupt(None, None)
         pass

@@ -1,31 +1,56 @@
-import { AuthProvider } from "react-admin";
+import { AuthProvider } from 'react-admin';
+import { startAuthentication } from '@simplewebauthn/browser';
 
 export const authProvider: AuthProvider = {
-    // called when the user attempts to log in
-    login: ({ username }) => {
-        localStorage.setItem("username", username);
-        // accept all username/password combinations
+  login: async ({ username }) => {
+    try {
+      const response = await fetch('http://localhost:8000/webauthn/generate-authentication-options', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: username }),
+      });
+
+      const data = await response.json();
+      const options = data.publicKey; // Ensure the publicKey object is used correctly
+      const authResp = await startAuthentication(options);
+
+      const verifyResponse = await fetch('http://localhost:8000/webauthn/verify-authentication', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: username, auth_resp: authResp }),
+      });
+
+      const { verified } = await verifyResponse.json();
+
+      if (verified) {
+        localStorage.setItem('username', username);
         return Promise.resolve();
-    },
-    // called when the user clicks on the logout button
-    logout: () => {
-        localStorage.removeItem("username");
-        return Promise.resolve();
-    },
-    // called when the API returns an error
-    checkError: ({ status }: { status: number }) => {
-        if (status === 401 || status === 403) {
-            localStorage.removeItem("username");
-            return Promise.reject();
-        }
-        return Promise.resolve();
-    },
-    // called when the user navigates to a new location, to check for authentication
-    checkAuth: () => {
-        return localStorage.getItem("username")
-            ? Promise.resolve()
-            : Promise.reject();
-    },
-    // called when the user navigates to a new location, to check for permissions / roles
-    getPermissions: () => Promise.resolve(),
+      } else {
+        return Promise.reject(new Error('Authentication failed'));
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  logout: () => {
+    localStorage.removeItem('username');
+    return Promise.resolve();
+  },
+  checkError: ({ status }: { status: number }) => {
+    if (status === 401 || status === 403) {
+      localStorage.removeItem('username');
+      return Promise.reject();
+    }
+    return Promise.resolve();
+  },
+  checkAuth: () => {
+    return localStorage.getItem('username')
+      ? Promise.resolve()
+      : Promise.reject();
+  },
+  getPermissions: () => Promise.resolve(),
 };
