@@ -50,7 +50,7 @@ async def generate_registration_options(registration_options: RegistrationOption
         raise HTTPException(status_code=404, detail="User not found")
 
     options = WebAuthn.generate_registration_options(
-        rp_name="Your App",
+        rp_name="pAI-OS",
         user_id=str(user.id),
         user_name=user.email,
         attestation="direct",

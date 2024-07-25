@@ -4,7 +4,7 @@ import { startAuthentication } from '@simplewebauthn/browser';
 export const authProvider: AuthProvider = {
   login: async ({ username }) => {
     try {
-      const response = await fetch('http://localhost:8000/webauthn/generate-authentication-options', {
+      const response = await fetch('https://localhost:3080/webauthn/generate-authentication-options', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -16,7 +16,7 @@ export const authProvider: AuthProvider = {
       const options = data.publicKey; // Ensure the publicKey object is used correctly
       const authResp = await startAuthentication(options);
 
-      const verifyResponse = await fetch('http://localhost:8000/webauthn/verify-authentication', {
+      const verifyResponse = await fetch('https://localhost:3080/webauthn/verify-authentication', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
