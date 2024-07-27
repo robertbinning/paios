@@ -8,7 +8,7 @@ const Login: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('https://localhost:3080/webauthn/generate-authentication-options', {
+      const response = await fetch('https://localhost:3080/api/v1/webauthn/generate-authentication-options', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ const Login: React.FC = () => {
       const options = data.publicKey;
       const authResp = await startAuthentication(options);
 
-      const verifyResponse = await fetch('https://localhost:3080/webauthn/verify-authentication', {
+      const verifyResponse = await fetch('https://localhost:3080/api/v1/webauthn/verify-authentication', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ const Login: React.FC = () => {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch('https://localhost:3080/webauthn/generate-registration-options', {
+      const response = await fetch('https://localhost:3080/api/v1/webauthn/generate-registration-options', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
       const options = await response.json();
       const attResp = await startRegistration(options);
 
-      const verifyResponse = await fetch('https://localhost:3080/webauthn/verify-registration', {
+      const verifyResponse = await fetch('https://localhost:3080/api/v1/webauthn/verify-registration', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

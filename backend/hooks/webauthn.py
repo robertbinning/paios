@@ -2,9 +2,13 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from webauthn import WebAuthn, webauthn_verify_registration_response, webauthn_verify_authentication_response
-from models import User
-from db import SessionLocal, engine  # Ensure correct import
+from webauthn import (
+    verify_registration_response,
+    verify_authentication_response
+)
+import webauthn
+from backend.models import User
+from backend.db import SessionLocal, engine  # Ensure correct import
 
 app = FastAPI()
 
@@ -49,7 +53,7 @@ async def generate_registration_options(registration_options: RegistrationOption
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    options = WebAuthn.generate_registration_options(
+    options = webauthn.generate_registration_options(
         rp_name="pAI-OS",
         user_id=str(user.id),
         user_name=user.email,
@@ -69,7 +73,7 @@ async def verify_registration(verify_registration: VerifyRegistration, db: Sessi
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    verification = webauthn_verify_registration_response(
+    verification = verify_registration_response(
         response=verify_registration.att_resp,
         expected_challenge=user.current_challenge,
         expected_origin="https://localhost:3080",
@@ -90,7 +94,7 @@ async def generate_authentication_options(authentication_options: Authentication
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    options = WebAuthn.generate_authentication_options(
+    options = webauthn.generate_authentication_options(
         allow_credentials=[
             {"id": user.credential_id, "type": "public-key", "transports": ["usb", "ble", "nfc"]}
         ],
@@ -109,7 +113,7 @@ async def verify_authentication(verify_authentication: VerifyAuthentication, db:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    verification = webauthn_verify_authentication_response(
+    verification = verify_authentication_response(
         response=verify_authentication.auth_resp,
         expected_challenge=user.current_challenge,
         expected_origin="https://localhost:3080",
