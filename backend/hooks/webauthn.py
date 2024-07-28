@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import HTTPException, Depends
+from fastapi import APIRouter
 from sqlalchemy.orm import Session
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from webauthn import (
     verify_registration_response,
@@ -9,21 +9,6 @@ from webauthn import (
 import webauthn
 from backend.models import User
 from backend.db import SessionLocal, engine  # Ensure correct import
-
-app = FastAPI()
-
-origins = [
-    "https://localhost",
-    "https://localhost:3080",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 class RegistrationOptions(BaseModel):
     email: str
@@ -46,7 +31,9 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/webauthn/generate-registration-options")
+router = APIRouter()
+
+@router.post("/webauthn/generate-registration-options")
 async def generate_registration_options(registration_options: RegistrationOptions, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == registration_options.email).first()
 
@@ -66,7 +53,7 @@ async def generate_registration_options(registration_options: RegistrationOption
 
     return options
 
-@app.post("/webauthn/verify-registration")
+@router.post("/webauthn/verify-registration")
 async def verify_registration(verify_registration: VerifyRegistration, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == verify_registration.email).first()
 
@@ -87,7 +74,7 @@ async def verify_registration(verify_registration: VerifyRegistration, db: Sessi
 
     return {"verified": verification.verified}
 
-@app.post("/webauthn/generate-authentication-options")
+@router.post("/webauthn/generate-authentication-options")
 async def generate_authentication_options(authentication_options: AuthenticationOptions, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == authentication_options.email).first()
 
@@ -106,7 +93,7 @@ async def generate_authentication_options(authentication_options: Authentication
 
     return options
 
-@app.post("/webauthn/verify-authentication")
+@router.post("/webauthn/verify-authentication")
 async def verify_authentication(verify_authentication: VerifyAuthentication, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == verify_authentication.email).first()
 
@@ -126,6 +113,6 @@ async def verify_authentication(verify_authentication: VerifyAuthentication, db:
 
     return {"verified": verification.verified}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=3080, ssl_certfile="./localhost+2.pem", ssl_keyfile="./localhost+2-key.pem")
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=3080, ssl_certfile="./localhost+2.pem", ssl_keyfile="./localhost+2-key.pem")

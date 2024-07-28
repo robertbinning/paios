@@ -30,7 +30,7 @@ def main():
 
     # Create the app
     from app import create_app
-    app = create_app()
+    fastapi_app = create_app()
 
     # Run the app
     import uvicorn

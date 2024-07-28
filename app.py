@@ -3,9 +3,9 @@ from backend.app import create_backend_app
 from starlette.staticfiles import StaticFiles
 
 def create_app():
-    app = create_backend_app()
-    add_frontend_app(app)
-    return app
+    connexion_app, fastapi_app = create_backend_app()
+    add_frontend_app(connexion_app)
+    return fastapi_app
 
 def add_frontend_app(app):
     # Add a route for serving static files

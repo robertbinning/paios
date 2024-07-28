@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # Create the app
     logger.info("Creating the app.")
     from app import create_app
-    app = create_app()
+    fastapi_app = create_app()
 
     # Define the paths to the SSL certificate and key file
     certfile_path = base_dir / "localhost+2.pem"
