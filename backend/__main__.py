@@ -2,6 +2,9 @@ import sys
 import signal
 import asyncio
 from pathlib import Path
+from starlette.applications import Starlette
+from starlette.middleware import Middleware
+from backend.middleware.auth_middleware import verify_token
 
 # Ensure the parent directory is in sys.path so relative imports work.
 base_dir = Path(__file__).parent

@@ -3,6 +3,7 @@ from connexion import AsyncApp
 from connexion.resolver import MethodResolver
 from connexion.middleware import MiddlewarePosition
 from starlette.middleware.cors import CORSMiddleware
+from backend.middleware.auth_middleware import verify_token
 
 def create_backend_app():
     apis_dir = Path(__file__).parent.parent / 'apis' / 'paios'
@@ -24,6 +25,9 @@ def create_backend_app():
         allow_headers=["*"],
         expose_headers=["Content-Range", "X-Total-Count"],
     )
+
+    # Add authentication middleware
+    connexion_app.add_middleware(verify_token)
 
     # Add API with validation
     connexion_app.add_api(

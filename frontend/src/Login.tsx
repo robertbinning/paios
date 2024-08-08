@@ -9,40 +9,47 @@ const Login: React.FC = () => {
 
   const handleLogin = async () => {
     try {
+        console.debug("Generating authentication options");
         const response = await fetch('http://localhost:3080/api/v1/webauthn/generate-authentication-options', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email }),
-            credentials: 'include',
         });
 
         const res = await response.json();
         const options = JSON.parse(res?.options)
+        console.debug("Starting authentication");
         const authResp = await startAuthentication(options);
 
+        console.debug("Verifying authentication response");
+        const token = localStorage.getItem('auth_token');
+        console.log(localStorage.getItem('auth_token')); // Added this line to log the token
         const verifyResponse = await fetch('http://localhost:3080/api/v1/webauthn/verify-authentication', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({ email, auth_resp: authResp, challenge: options.challenge }),
-            credentials: 'include',
         });
 
-        const { message } = await verifyResponse.json();
-        if (message === "Success") {
+        const { message, token: newToken } = await verifyResponse.json();
+        if (message === "Success" && newToken) {
+            console.debug("Login successful, storing token");
             setMessage('Login successful');
+            localStorage.setItem('auth_token', newToken); // Updated to use newToken
             // Trigger authProvider login
             await authProvider.login({ username: email });
             // Redirect to the admin dashboard
             window.location.href = '/';
         } else {
+            console.warn("Login failed"); // Changed from console.warning to console.warn
             setMessage('Login failed');
         }
     } catch (error) {
-        console.error(error);
+        console.error("An error occurred during login:", error);
         setMessage('An error occurred during login');
     }
   };

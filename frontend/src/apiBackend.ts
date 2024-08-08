@@ -4,9 +4,16 @@ export const apiBase = import.meta.env.VITE_JSON_SERVER_URL || 'http://localhost
 
 export const httpClient = (url: string, options: any = {}) => {
     if (!options.headers) {
-      options.headers = new Headers({ Accept: 'application/json' });
+        options.headers = new Headers({ Accept: 'application/json' });
     }
-    
-    options.credentials = 'include'; // This is important for sending cookies
-    return fetchUtils.fetchJson(url, options);
-  }
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+        options.headers.set('Authorization', `Bearer ${token}`);
+    }
+    return fetchUtils.fetchJson(url, options).catch(error => {
+        if (error.status === 401) {
+            localStorage.removeItem('auth_token');
+        }
+        throw error;
+    });
+}

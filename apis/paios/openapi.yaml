@@ -37,12 +37,16 @@ paths:
           headers:
             X-Total-Count:
               $ref: '#/components/headers/X-Total-Count'
+      security:
+        - BearerAuth: []
   '/abilities/{id}':
     get:
       tags:
         - Abilities Management
       summary: Retrieve ability by id
       description: Retrieve the information of the ability with the matching ability ID.
+      parameters:
+        - $ref: '#/components/parameters/snake_id'
       responses:
         '200':
           description: OK
@@ -50,8 +54,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ability'
-    parameters:
-      - $ref: '#/components/parameters/snake_id'
+      security:
+        - BearerAuth: []
   '/abilities/{id}/install':
     post:
       tags:
@@ -69,6 +73,8 @@ paths:
           description: Invalid request
         '404':
           description: Ability not found
+      security:
+        - BearerAuth: []
   '/abilities/{id}/upgrade':
     post:
       tags:
@@ -86,6 +92,8 @@ paths:
           description: Invalid request
         '404':
           description: Ability not found
+      security:
+        - BearerAuth: []
   '/abilities/{id}/uninstall':
     post:
       tags:
@@ -102,6 +110,8 @@ paths:
           description: Invalid request
         '404':
           description: Ability not found
+      security:
+        - BearerAuth: []
   '/abilities/{id}/start':
     post:
       tags:
@@ -109,11 +119,13 @@ paths:
       summary: Start ability
       description: Starts the ability with the matching ability ID.
       operationId: backend.api.AbilitiesView.start
+      parameters:
+        - $ref: '#/components/parameters/snake_id'
       responses:
         '200':
           description: OK
-    parameters:
-      - $ref: '#/components/parameters/snake_id'
+      security:
+        - BearerAuth: []
   '/abilities/{id}/stop':
     post:
       tags:
@@ -121,28 +133,32 @@ paths:
       summary: Stop ability
       description: Stops the ability with the matching ability ID.
       operationId: backend.api.AbilitiesView.stop
+      parameters:
+        - $ref: '#/components/parameters/snake_id'
       responses:
         '200':
           description: OK
-    parameters:
-      - $ref: '#/components/parameters/snake_id'
+      security:
+        - BearerAuth: []
   '/abilities/{id}/dependencies/{dependency_id}/download':
     post:
       tags:
         - Abilities Management
       summary: Start download
       description: Downloads an ability's dependency.
+      parameters:
+        - $ref: '#/components/parameters/snake_id'
+        - name: dependency_id
+          in: path
+          description: id of the dependency
+          required: true
+          schema:
+            $ref: '#/components/schemas/kebab-snake_id'
       responses:
         '200':
           description: Download started
-    parameters:
-      - $ref: '#/components/parameters/snake_id'
-      - name: dependency_id
-        in: path
-        description: id of the dependency
-        required: true
-        schema:
-          $ref: '#/components/schemas/kebab-snake_id'
+      security:
+        - BearerAuth: []
   '/abilities/{id}/dependencies/{dependency_id}/install':
     post:
       tags:
@@ -150,17 +166,19 @@ paths:
       summary: Start dependency install
       description: Installs an ability's dependency.
       operationId: backend.api.AbilitiesView.install_dependency
+      parameters:
+        - $ref: '#/components/parameters/snake_id'
+        - name: dependency_id
+          in: path
+          description: id of the dependency
+          required: true
+          schema:
+            $ref: '#/components/schemas/kebab-snake_id'
       responses:
         '200':
           description: Install started
-    parameters:
-      - $ref: '#/components/parameters/snake_id'
-      - name: dependency_id
-        in: path
-        description: id of the dependency
-        required: true
-        schema:
-          $ref: '#/components/schemas/kebab-snake_id'
+      security:
+        - BearerAuth: []
   /assets:
     get:
       tags:
@@ -183,10 +201,18 @@ paths:
           headers:
             X-Total-Count:
               $ref: '#/components/headers/X-Total-Count'
+      security:
+        - BearerAuth: []
     post:
-      summary: Create new asset
       tags:
         - Asset Management
+      summary: Create new asset
+      description: Creates a new asset.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetCreate'
       responses:
         '201':
           description: Created
@@ -196,12 +222,8 @@ paths:
                 $ref: '#/components/schemas/Asset'
         '400':
           description: Missing Required Information
-      description: Creates a new asset.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AssetCreate'
+      security:
+        - BearerAuth: []
   '/assets/{id}':
     get:
       tags:
@@ -217,10 +239,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Asset'
+      security:
+        - BearerAuth: []
     put:
-      summary: Update asset by id
       tags:
         - Asset Management
+      summary: Update asset by id
+      description: Updates the asset with the given id.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
       responses:
         '200':
           description: OK
@@ -228,24 +258,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Asset'
-      description: Updates the asset with the given id.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Asset'
+      security:
+        - BearerAuth: []
     delete:
-      summary: Delete asset by id
-      description: Deletes the asset with the given id.
       tags:
         - Asset Management
+      summary: Delete asset by id
+      description: Deletes the asset with the given id.
+      parameters:
+        - $ref: '#/components/parameters/id'
       responses:
         '204':
           description: No Content
         '404':
           description: Not Found
-    parameters:
-      - $ref: '#/components/parameters/id'
+      security:
+        - BearerAuth: []
   /channels:
     get:
       tags:
@@ -268,21 +296,29 @@ paths:
           headers:
             X-Total-Count:
               $ref: '#/components/headers/X-Total-Count'
+      security:
+        - BearerAuth: []
     post:
-      summary: Create new channel
       tags:
         - Channel Management
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Missing Required Information
+      summary: Create new channel
       description: Create a new channel.
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ChannelCreate'
+      responses:
+        '201':
+          description: Channel Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '400':
+          description: Missing Required Information
+      security:
+        - BearerAuth: []
   '/channels/{id}':
     get:
       tags:
@@ -298,6 +334,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Channel'
+      security:
+        - BearerAuth: []
     put:
       tags:
         - Channel Management
@@ -313,6 +351,8 @@ paths:
       responses:
         '200':
           description: OK
+      security:
+        - BearerAuth: []
     delete:
       tags:
         - Channel Management
@@ -325,6 +365,8 @@ paths:
           description: No Content
         '404':
           description: Not Found
+      security:
+        - BearerAuth: []
   '/config/{key}':
     get:
       tags:
@@ -340,6 +382,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Config'
+      security:
+        - BearerAuth: []
     put:
       tags:
         - Configuration Management
@@ -355,6 +399,8 @@ paths:
       responses:
         '200':
           description: OK
+      security:
+        - BearerAuth: []
     delete:
       tags:
         - Configuration Management
@@ -367,6 +413,8 @@ paths:
           description: No Content
         '404':
           description: Not Found
+      security:
+        - BearerAuth: []
   /downloads:
     get:
       tags:
@@ -389,6 +437,8 @@ paths:
           headers:
             X-Total-Count:
               $ref: '#/components/headers/X-Total-Count'
+      security:
+        - BearerAuth: []
     post:
       tags:
         - Downloads Management
@@ -412,6 +462,8 @@ paths:
                   $ref: '#/components/schemas/Download'
         '400':
           description: Invalid request
+      security:
+        - BearerAuth: []
   '/downloads/{id}':
     delete:
       tags:
@@ -425,6 +477,8 @@ paths:
           description: No Content
         '404':
           description: Download Not Found
+      security:
+        - BearerAuth: []
   '/downloads/{id}/pause':
     post:
       tags:
@@ -437,6 +491,8 @@ paths:
       responses:
         '200':
           description: Download paused
+      security:
+        - BearerAuth: []
   '/downloads/{id}/resume':
     post:
       tags:
@@ -449,6 +505,8 @@ paths:
       responses:
         '200':
           description: Download resumed
+      security:
+        - BearerAuth: []
   /users:
     get:
       tags:
@@ -471,6 +529,8 @@ paths:
           headers:
             X-Total-Count:
               $ref: '#/components/headers/X-Total-Count'
+      security:
+        - BearerAuth: []
     post:
       tags:
         - User Management
@@ -496,6 +556,8 @@ paths:
           description: Missing Required Information
         '409':
           description: Email Already Taken
+      security:
+        - BearerAuth: []
   '/users/{id}':
     get:
       tags:
@@ -513,18 +575,8 @@ paths:
                 $ref: '#/components/schemas/User'
         '404':
           description: User Not Found
-    delete:
-      tags:
-        - User Management
-      summary: Delete user by id
-      description: Delete the user with the specified id
-      parameters:
-        - $ref: '#/components/parameters/id'
-      responses:
-        '204':
-          description: No Content
-        '404':
-          description: Not Found
+      security:
+        - BearerAuth: []
     put:
       tags:
         - User Management
@@ -549,11 +601,28 @@ paths:
           description: User Not Found
         '409':
           description: Email Already Taken
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - User Management
+      summary: Delete user by id
+      description: Delete the user with the specified id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+      security:
+        - BearerAuth: []
   /webauthn/generate-registration-options:
     post:
       summary: Generate WebAuthn registration options
       description: Generate registration options for WebAuthn.
       operationId: backend.api.AuthView.generate_registration_options
+      security: []
       requestBody:
         required: true
         content:
@@ -586,6 +655,7 @@ paths:
             type: string
           description: Passkey challenge
       operationId: backend.api.AuthView.verify_registration
+      security: []
       requestBody:
         required: true
         content:
@@ -606,6 +676,7 @@ paths:
       summary: Generate WebAuthn authentication options
       description: Generate authentication options for WebAuthn.
       operationId: backend.api.AuthView.generate_authentication_options
+      security: []
       requestBody:
         required: true
         content:
@@ -631,6 +702,7 @@ paths:
       summary: Verify WebAuthn authentication
       description: Verify the authentication response for WebAuthn.
       operationId: backend.api.AuthView.verify_authentication
+      security: []
       requestBody:
         required: true
         content:
@@ -650,6 +722,7 @@ paths:
     post:
       summary: Logout user
       operationId: backend.api.AuthView.logout
+      security: []
       responses:
         '200':
           description: Logged out successfully
@@ -657,11 +730,29 @@ paths:
     get:
       summary: Check authentication status
       operationId: backend.api.AuthView.check_auth
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: Authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user_id:
+                    type: string
         '401':
           description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
 tags:
   - name: Abilities Management
     description: Installation and configuration of abilities
@@ -676,6 +767,11 @@ tags:
   - name: User Management
     description: Management of user accounts
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   headers:
     X-Total-Count:
       description: The total number of items

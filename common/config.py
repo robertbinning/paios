@@ -1,5 +1,11 @@
 from typing import Any
 from common.paths import log_dir
+import secrets
+
+def generate_secret_key():
+    return secrets.token_hex(32)
+
+SECRET_KEY = generate_secret_key()
 
 logging_config: dict[str, Any] = {
     "version": 1,
