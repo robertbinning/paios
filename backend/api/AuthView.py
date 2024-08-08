@@ -44,6 +44,17 @@ class AuthView:
             return JSONResponse({"error": "Authentication failed."}, status_code=401)
          
         response = JSONResponse({"message": "Success"}, status_code=200)
-        response.set_cookie(key="user", value=user)
+        response.set_cookie(key="session", value=user, httponly=True, secure=True, samesite='lax')
         return response
     
+    async def logout(self, request):
+        response = JSONResponse({"message": "Logged out successfully"}, status_code=200)
+        response.delete_cookie(key="session")
+        return response
+
+    async def check_auth(self, request):
+        session = request.cookies.get("session")
+        if session:
+            return JSONResponse({"message": "Authenticated"}, status_code=200)
+        else:
+            return JSONResponse({"error": "Not authenticated"}, status_code=401)

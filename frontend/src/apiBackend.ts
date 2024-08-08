@@ -7,7 +7,6 @@ export const httpClient = (url: string, options: any = {}) => {
       options.headers = new Headers({ Accept: 'application/json' });
     }
     
-    const token = import.meta.env.VITE_PAIOS_BEARER_TOKEN;
-    options.headers.set('Authorization', `Bearer ${token}`);
+    options.credentials = 'include'; // This is important for sending cookies
     return fetchUtils.fetchJson(url, options);
   }

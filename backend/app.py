@@ -14,15 +14,15 @@ def create_backend_app():
         'http://localhost:5173'
     ]
 
-   # Add CORS middleware
+    # Add CORS middleware
     connexion_app.add_middleware(
-       CORSMiddleware,
-       position=MiddlewarePosition.BEFORE_EXCEPTION,
-       allow_origins=allow_origins,
-       allow_credentials=True,
-       allow_methods=["*"],
-       allow_headers=["*"],
-       expose_headers=["Content-Range", "X-Total-Count"],
+        CORSMiddleware,
+        position=MiddlewarePosition.BEFORE_EXCEPTION,
+        allow_origins=allow_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["Content-Range", "X-Total-Count"],
     )
 
     # Add API with validation
@@ -30,8 +30,7 @@ def create_backend_app():
         'openapi.yaml',
         resolver=MethodResolver('backend.api'),
         resolver_error=501,
-        # TODO: Validation has a performance impact and may want to be disabled in production
-        validate_responses=True,  # Validate responses against the OpenAPI spec
-        strict_validation=True    # Validate requests strictly against the OpenAPI spec
+        validate_responses=True,
+        strict_validation=True
     )
     return connexion_app

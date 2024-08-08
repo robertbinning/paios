@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
+import { authProvider } from './authProvider';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -8,31 +9,41 @@ const Login: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:3080/api/v1/webauthn/generate-authentication-options', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+        const response = await fetch('http://localhost:3080/api/v1/webauthn/generate-authentication-options', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+            credentials: 'include',
+        });
 
-      const res = await response.json();
-      const options = JSON.parse(res?.options)
-      const authResp = await startAuthentication(options);
+        const res = await response.json();
+        const options = JSON.parse(res?.options)
+        const authResp = await startAuthentication(options);
 
-      const verifyResponse = await fetch('http://localhost:3080/api/v1/webauthn/verify-authentication', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, auth_resp: authResp, challenge: options.challenge }),
-      });
+        const verifyResponse = await fetch('http://localhost:3080/api/v1/webauthn/verify-authentication', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, auth_resp: authResp, challenge: options.challenge }),
+            credentials: 'include',
+        });
 
-      const { message } = await verifyResponse.json();
-      setMessage(message === "Success" ? 'Login successful' : 'Login failed');
+        const { message } = await verifyResponse.json();
+        if (message === "Success") {
+            setMessage('Login successful');
+            // Trigger authProvider login
+            await authProvider.login({ username: email });
+            // Redirect to the admin dashboard
+            window.location.href = '/';
+        } else {
+            setMessage('Login failed');
+        }
     } catch (error) {
-      console.error(error);
-      setMessage('An error occurred during login');
+        console.error(error);
+        setMessage('An error occurred during login');
     }
   };
 
